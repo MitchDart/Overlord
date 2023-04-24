@@ -1,0 +1,39 @@
+@using Overlord.Blazor.Models.Maps
+@using Overlord.Blazor.Models.Marker
+@inject IJSRuntime JsRuntime
+
+<div @ref="_map" style="height: 100vh; width: 100%" class="overflow-visible"></div>
+
+@code {
+    private ElementReference _map;
+    private IJSObjectReference? _mapObj;
+    
+    [Parameter]
+    [EditorRequired]
+    public EventCallback OnReady { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _mapObj = await JsRuntime.InvokeAsync<IJSObjectReference>("leafletInterop.initializeMap", _map);
+            await OnReady.InvokeAsync();
+        }
+    }
+
+    public async Task AddMarker(Marker marker)
+    {
+        await JsRuntime.InvokeVoidAsync("leafletInterop.addMarker", _mapObj, marker.LatLon.Lat, marker.LatLon.Lon, marker.Icon, marker.Size);
+    }
+
+    public async Task SetMap(Map map)
+    {
+        await SetMaxBounds(map.TopLeftCorner.Lat, map.TopLeftCorner.Lon, map.BottomRightCorner.Lat, map.BottomRightCorner.Lon);
+    }
+
+    private async Task SetMaxBounds(double corner1Lat, double corner1Lon, double corner2Lat, double corner2Lon)
+    {
+        await JsRuntime.InvokeVoidAsync("leafletInterop.setMaxBounds", _mapObj, corner1Lat, corner1Lon, corner2Lat, corner2Lon);
+        await JsRuntime.InvokeVoidAsync("leafletInterop.fitBounds", _mapObj, corner1Lat, corner1Lon, corner2Lat, corner2Lon);
+    }
+}
