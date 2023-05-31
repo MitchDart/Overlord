@@ -17,13 +17,15 @@ window.leafletInterop = {
             popupAnchor: [0, -size/2]
         });
         const marker = L.marker([lat, lng], {
-            icon: icon,
-            draggable: true
+            icon: icon
         }).addTo(map);
         if (iconCode) {
             marker.bindPopup(iconCode);
         }
-        return marker._leaflet_id;
+        return marker;
+    },
+    setLatLng: function(marker, lat, lng) {
+        marker.setLatLng(L.latLng(lat, lng))  
     },
     setMaxBounds: function (map, corner1lat, corner1lon, corner2lat, corner2lon) {
         var corner1 = L.latLng(corner1lat, corner1lon),

@@ -2,21 +2,70 @@
 @using Overlord.Blazor.Models.Maps
 @using Overlord.Blazor.Models.Marker
 @using Overlord.Blazor.Utils
+@using Overlord.Blazor.Service
+@using RurouniJones.Dcs.Grpc.V0.Common
 
 @inject IJSRuntime JsRuntime
+@inject DataStore DataStore
+@inject ILogger<Index> Logger
 
-<LeafletInterop @ref="Leaflet" OnReady="OnLeafletReady" />
-
+<div class="row">
+    <div class="col">
+        <LeafletInterop @ref="Leaflet" OnReady="OnLeafletReady" />
+    </div>
+</div>
 @code
 {
     private LeafletInterop? Leaflet { get; set; }
+    private IDictionary<uint, Marker> Markers;
+    private IDictionary<uint, Unit> Data;
+
+    protected override void OnInitialized()
+    {
+        DataStore.SubscribeAndLoadInitialUnitData(out Data).Subscribe(dataChangeList =>
+        {
+            Logger.LogInformation("Got {ObjCount} changes from event stream", dataChangeList.Count);
+            foreach (var unitChangeEvent in dataChangeList)
+            {
+                switch (unitChangeEvent.UnitChange)
+                {
+                    case UnitChangedEventArgs.UnitChangeType.Created:
+                        Data[unitChangeEvent.Unit.Id] = unitChangeEvent.Unit;
+                        AddOrUpdateMarker(unitChangeEvent.Unit);
+                        break;
+                    case UnitChangedEventArgs.UnitChangeType.Updated:
+                        AddOrUpdateMarker(unitChangeEvent.Unit);
+                        break;
+                    case UnitChangedEventArgs.UnitChangeType.Removed:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private void AddOrUpdateMarker(Unit unit)
+    {
+        if (Markers.TryGetValue(unit.Id, out var existingMarker))
+        {
+            existingMarker.LatLon = new LatLon(unit.Position.Lat, unit.Position.Lon);
+            return;
+        }
+        var marker = new Marker("SFG-UCI----D", 35, new LatLon(unit.Position.Lat, unit.Position.Lon));
+        Markers[unit.Id] = marker;
+        Leaflet?.AddMarker(marker);
+    }
 
     private void OnLeafletReady()
     {
         Leaflet?.SetMap(new Caucasus());
-
-        Leaflet?.AddMarker(new Marker(new LatLon(43.5849, 39.7231), "SFG-UCI----D",35));
+        Markers = new Dictionary<uint, Marker>();
         
-        StateHasChanged();
+        foreach (var unit in Data)
+        {
+            AddOrUpdateMarker(unit.Value);
+        }
     }
 }

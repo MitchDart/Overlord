@@ -10,4 +10,32 @@
       <Folder Include="Milsymbol" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.22.3" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.52.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.54.0">
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
+      </PackageReference>
+      <PackageReference Include="System.Reactive" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="protos/dcs/dcs.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/atmosphere/v0/atmosphere.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/coalition/v0/coalition.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/common/v0/common.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/controller/v0/controller.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/custom/v0/custom.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/group/v0/group.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/hook/v0/hook.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/mission/v0/mission.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/net/v0/net.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/timer/v0/timer.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/trigger/v0/trigger.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/tts/v0/tts.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/unit/v0/unit.proto" ProtoRoot="protos" GrpcServices="Client" />
+        <Protobuf Include="protos/dcs/world/v0/world.proto" ProtoRoot="protos" GrpcServices="Client" />
+    </ItemGroup>
+
 </Project>

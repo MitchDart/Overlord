@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Overlord.Blazor.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddSingleton<ConnectionService>();
+builder.Services.AddSingleton<DataStore>();
 
 var app = builder.Build();
 
@@ -21,5 +22,8 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+var connectionService = app.Services.GetRequiredService<ConnectionService>();
+connectionService.Start();
 
 app.Run();

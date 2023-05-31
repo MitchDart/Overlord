@@ -1,12 +1,16 @@
 @using Overlord.Blazor.Models.Maps
 @using Overlord.Blazor.Models.Marker
+@using System.Timers
+@using Overlord.Blazor.Utils
 @inject IJSRuntime JsRuntime
 
-<div @ref="_map" style="height: 100vh; width: 100%" class="overflow-visible"></div>
+<div @ref="_map" style="height: 800px; width: 800px;"></div>
 
 @code {
     private ElementReference _map;
     private IJSObjectReference? _mapObj;
+
+    private Dictionary<Marker, IJSObjectReference> _markers = new();
     
     [Parameter]
     [EditorRequired]
@@ -23,7 +27,14 @@
 
     public async Task AddMarker(Marker marker)
     {
-        await JsRuntime.InvokeVoidAsync("leafletInterop.addMarker", _mapObj, marker.LatLon.Lat, marker.LatLon.Lon, marker.Icon, marker.Size);
+        var jsObj = await JsRuntime.InvokeAsync<IJSObjectReference>("leafletInterop.addMarker", _mapObj, marker.LatLon.Lat, marker.LatLon.Lon, marker.Icon, marker.Size);
+        _markers.Add(marker, jsObj);
+        marker.SetLocationChangedEventHandler(MoveMarker);
+    }
+
+    private void MoveMarker(Marker marker)
+    {
+        JsRuntime.InvokeVoidAsync("leafletInterop.setLatLng", _markers[marker], marker.LatLon.Lat, marker.LatLon.Lon);
     }
 
     public async Task SetMap(Map map)
